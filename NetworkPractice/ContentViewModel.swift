@@ -26,8 +26,19 @@ final class ContentViewModel: ObservableObject {
     }
     
      func requestUser() {
-        
         NetworkManager.shared.requestUser { user, error in
+            
+            if let error = error {
+                switch error {
+                    
+                case .invalidURL:
+                    print("URL이 유효하지 않은 Alert 띄워주기")
+                case .badConnection:
+                    print("badConnection 띄워주기")
+                default:
+                    print("알 수 없는 에러 처리")
+                }
+            }
             
             guard let post = user else {
                 print(error)
