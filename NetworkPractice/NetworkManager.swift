@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Networkerror {
+enum Networkerror: Error {
     case invalidURL
     case badConnection
     case invalidResponse
@@ -28,73 +28,78 @@ enum Networkerror {
     }
 }
 
+//enum MyResult<T> {
+//    case sussess(data: T)
+//    case failure(error: Networkerror)
+//}
+
 final class NetworkManager {
     static let shared = NetworkManager()
     
     private init() { }
     
-    func requestUser(completed: @escaping (User?, Networkerror?) -> ()) {
+    func requestUser(completed: @escaping (Result<User, Networkerror>) -> ()) {
         let endPoint = "https://koreanjson.com/users/1"
         
         // url이 맞는지 검증해야함
         guard let url = URL(string: endPoint) else {
-            completed(nil, .invalidURL)
+            completed(.failure(.invalidURL))
             return
         }
         
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             if let _ = error {
-                completed(nil, .badConnection)
+                completed(.failure(.badConnection))
                 return
             }
             
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                completed(nil, .invalidResponse)
+                completed(.failure(.invalidResponse))
                 return
             }
             
             guard let data = data else {
-                completed(nil, .invalidData)
+                completed(.failure(.invalidData))
                 return
             }
             
             do {
                 let decodedResponse = try JSONDecoder().decode(User.self, from: data)
-                completed(decodedResponse, nil)
+                completed(.success(decodedResponse))
             } catch {
                 print(error)
             }
         }.resume()
     }
     
-    func requestPost(completed: @escaping (Post?, String?) -> ()) {
+    func requestPost(completed: @escaping (Result<Post, Networkerror>) -> ()) {
         let endPoint = "https://koreanjson.com/posts/1"
         
         // url이 맞는지 검증해야함
         guard let url = URL(string: endPoint) else {
-            completed(nil, "This is not correct url")
+            completed(.failure(.invalidURL))
             return
         }
         
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             if let _ = error {
-                completed(nil, "We got some error. check the internet")
+                completed(.failure(.badConnection))
                 return
             }
             
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                completed(nil, "Invalid response")
+                completed(.failure(.invalidResponse))
                 return
             }
             
             guard let data = data else {
-                completed(nil, "The data recived is wrong")
+                completed(.failure(.invalidData))
                 return
             }
             
             do {
                 let decodedResponse = try JSONDecoder().decode(Post.self, from: data)
-                completed(decodedResponse, nil)
+                completed(.success(decodedResponse))
             } catch {
                 print(error)
             }

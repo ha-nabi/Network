@@ -14,38 +14,43 @@ final class ContentViewModel: ObservableObject {
    
     // 데이터 호출
      func requestPost() {
-        NetworkManager.shared.requestPost { post, error in
+        NetworkManager.shared.requestPost { result in
             
-            guard let post = post else {
-                print(error)
-                return
+            switch result {
+            case .success(let post):
+                self.posts.append(post.title)
+            case .failure(let error):
+                switch error {
+                    
+                case .invalidURL:
+                    print("invalidURL")
+                case .badConnection:
+                    print("badConnection")
+                case .invalidResponse:
+                    print("invalidResponse")
+                case .invalidData:
+                    print("invalidData")
+                }
             }
-            
-            self.posts.append(post.title)
         }
     }
     
      func requestUser() {
-        NetworkManager.shared.requestUser { user, error in
-            
-            if let error = error {
-                switch error {
-                    
-                case .invalidURL:
-                    print("URL이 유효하지 않은 Alert 띄워주기")
-                case .badConnection:
-                    print("badConnection 띄워주기")
-                default:
-                    print("알 수 없는 에러 처리")
-                }
-            }
-            
-            guard let post = user else {
-                print(error)
-                return
-            }
-            
-            self.users.append(user?.name ?? "ErrorName")
-        }
-    }
+         NetworkManager.shared.requestUser { result in
+             switch result {
+             case .success(let user):
+                 self.users.append(user.name)
+             case .failure(let error):
+                 switch error {
+                     
+                 case .invalidURL:
+                     print("URL이 유효하지 않은 Alert 띄워주기")
+                 case .badConnection:
+                     print("badConnection 띄워주기")
+                 default:
+                     print("알 수 없는 에러 처리")
+                 }
+             }
+         }
+     }
 }

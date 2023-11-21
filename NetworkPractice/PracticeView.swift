@@ -24,14 +24,21 @@ struct PracticeView: View {
     }
     
     private func requestUser() {
-        NetworkManager.shared.requestUser { user, error in
+        NetworkManager.shared.requestUser { result in
             
-            guard let post = user else {
-                print(error)
-                return
+            switch result {
+            case .failure(let error):
+                switch error {
+                case .invalidURL:
+                    print("URL이 유효하지 않은 Alert 띄워주기")
+                case .badConnection:
+                    print("badConnection 띄워주기")
+                default:
+                    print("알 수 없는 에러 처리")
+                }
+            case .success(let user):
+                users.append(user.name)
             }
-            
-            users.append(user?.name ?? "ErrorName")
         }
     }
 }
