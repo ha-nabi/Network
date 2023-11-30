@@ -61,6 +61,7 @@ class NewsAPI: ObservableObject {
 
             guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
                 // 정상적으로 값이 오지 않았을 때 처리
+                self.posts = []
                 return
             }
 

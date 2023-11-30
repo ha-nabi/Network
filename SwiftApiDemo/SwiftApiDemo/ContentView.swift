@@ -15,7 +15,15 @@ struct ContentView: View {
         NavigationStack {
             List {
                 ForEach(network.posts, id: \.self) { result in
-                    Text(result.title)
+                    HStack {
+                        AsyncImage(url: URL(string: result.urlToImage ?? "")) { image in
+                            image.image?.resizable()
+                        }
+                        .frame(width: 120, height: 80)
+                        
+                        Text(result.title)
+                            .fontWeight(.semibold)
+                    }
                 }
             }
         }
